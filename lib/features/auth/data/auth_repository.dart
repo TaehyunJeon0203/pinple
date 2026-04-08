@@ -26,11 +26,9 @@ class AuthRepository {
     );
 
     final user = credential.user!;
-    final studentId = email.split('@').first;
 
     await _firestore.collection('users').doc(user.uid).set({
       'email': email,
-      'studentId': studentId,
       'displayName': nickname,
       'createdAt': FieldValue.serverTimestamp(),
     });

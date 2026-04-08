@@ -1,8 +1,7 @@
 import 'package:pinple/core/constants/campus_constants.dart';
 
 bool isValidKongjuEmail(String email) {
-  final regex = RegExp(r'^\d+@smail\.kongju\.ac\.kr$');
-  return regex.hasMatch(email);
+  return email.endsWith('@${CampusConstants.emailDomain}');
 }
 
 String? validateEmail(String? value) {

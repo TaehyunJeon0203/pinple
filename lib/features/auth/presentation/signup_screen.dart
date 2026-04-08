@@ -13,7 +13,7 @@ class SignUpScreen extends ConsumerStatefulWidget {
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _studentIdController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nicknameController = TextEditingController();
@@ -21,7 +21,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   void dispose() {
-    _studentIdController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _nicknameController.dispose();
@@ -33,9 +33,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final email = '${_studentIdController.text.trim()}@smail.kongju.ac.kr';
       await ref.read(authRepositoryProvider).signUp(
-            email: email,
+            email: _emailController.text.trim(),
             password: _passwordController.text,
             nickname: _nicknameController.text.trim(),
           );
@@ -65,19 +64,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
-                controller: _studentIdController,
+                controller: _emailController,
                 decoration: const InputDecoration(
-                  labelText: '학번',
-                  hintText: '202012345',
-                  prefixIcon: Icon(Icons.badge_outlined),
-                  suffixText: '@smail.kongju.ac.kr',
+                  labelText: '학교 이메일',
+                  hintText: 'example@smail.kongju.ac.kr',
+                  prefixIcon: Icon(Icons.email_outlined),
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) return '학번을 입력해주세요';
-                  if (!RegExp(r'^\d+$').hasMatch(value)) return '숫자만 입력해주세요';
-                  return null;
-                },
+                keyboardType: TextInputType.emailAddress,
+                validator: validateEmail,
               ),
               const SizedBox(height: 16),
               TextFormField(
