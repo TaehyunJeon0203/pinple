@@ -18,14 +18,15 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // TODO: Firebase Console에서 가져온 실제 값으로 교체하세요
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyBIc0uia9Kzk__RnSs9sWErrIx4EkRDEyk',
+    appId: '1:543219105525:android:59e2b17ad506f76b904fbc',
+    messagingSenderId: '543219105525',
+    projectId: 'pinple-5e23e',
+    storageBucket: 'pinple-5e23e.firebasestorage.app',
   );
+
+  // TODO: Firebase Console에서 가져온 실제 값으로 교체하세요
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'YOUR_IOS_API_KEY',
