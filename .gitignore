@@ -39,3 +39,7 @@ build/
 # OMC working directory
 .omc/state/
 .omc/project-memory.json
+
+# Firebase platform configs (regenerate via `flutterfire configure`)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
