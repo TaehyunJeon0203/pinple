@@ -14,7 +14,13 @@ void main() async {
 
   // ignore: deprecated_member_use
   await NaverMapSdk.instance.initialize(
-    clientId: 'YOUR_NAVER_MAP_CLIENT_ID',
+    clientId: 'sf44dqi8bt',
+    onAuthFailed: (ex) {
+      debugPrint('===== NaverMap auth failed =====');
+      debugPrint('type: ${ex.runtimeType}');
+      debugPrint('message: $ex');
+      debugPrint('================================');
+    },
   );
 
   runApp(
