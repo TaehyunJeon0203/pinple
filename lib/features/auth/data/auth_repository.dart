@@ -27,13 +27,17 @@ class AuthRepository {
 
     final user = credential.user!;
 
-    await _firestore.collection('users').doc(user.uid).set({
-      'email': email,
-      'displayName': nickname,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
-
-    await user.sendEmailVerification();
+    try {
+      await _firestore.collection('users').doc(user.uid).set({
+        'email': email,
+        'displayName': nickname,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      await user.sendEmailVerification();
+    } catch (e) {
+      await user.delete();
+      rethrow;
+    }
   }
 
   Future<void> signIn({
