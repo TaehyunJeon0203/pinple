@@ -35,3 +35,7 @@ build/
 .metadata
 *.lock
 !pubspec.lock
+
+# OMC working directory
+.omc/state/
+.omc/project-memory.json
