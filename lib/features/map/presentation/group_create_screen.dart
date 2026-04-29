@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinple/core/constants/app_constants.dart';
 import 'package:pinple/core/constants/campus_constants.dart';
+import 'package:pinple/core/theme/app_theme.dart';
+import 'package:pinple/core/utils/category_helpers.dart';
+import 'package:pinple/core/widgets/app_widgets.dart';
 import 'package:pinple/features/auth/providers/auth_provider.dart';
 import 'package:pinple/features/map/domain/group_model.dart';
 import 'package:pinple/features/map/providers/group_provider.dart';
@@ -127,15 +130,15 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl,
+                vertical: AppSpacing.lg,
+              ),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     '장소 선택',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
                   TextButton(
@@ -173,17 +176,28 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditMode ? '모임 수정' : '모임 만들기'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (!_isEditMode) ...[
+                PageHeader(
+                  title: '어떤 모임이에요?',
+                  subtitle: '카테고리와 인원을 정해주세요',
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                ),
+              ],
+
+              // 모임 이름
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
@@ -193,48 +207,60 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
                 validator: (v) =>
                     v == null || v.isEmpty ? '모임 이름을 입력해주세요' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
 
-              // Category
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                decoration: const InputDecoration(labelText: '카테고리'),
-                items: GroupCategory.values
-                    .map((c) => DropdownMenuItem(
-                          value: c.label,
-                          child: Text(c.label),
-                        ))
-                    .toList(),
-                onChanged: (v) => setState(() => _selectedCategory = v!),
+              // 카테고리
+              Text(
+                '카테고리',
+                style: theme.textTheme.labelLarge,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.sm),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: GroupCategory.values.map((c) {
+                  return _CategoryOption(
+                    label: c.label,
+                    isSelected: _selectedCategory == c.label,
+                    onTap: () => setState(() => _selectedCategory = c.label),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: AppSpacing.lg),
 
-              // Max members
+              // 최대 인원 stepper
+              Text(
+                '최대 인원',
+                style: theme.textTheme.labelLarge,
+              ),
+              const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
-                  const Text('최대 인원'),
-                  const Spacer(),
-                  IconButton(
+                  _StepperButton(
+                    icon: Icons.remove_rounded,
                     onPressed: _maxMembers > 2
                         ? () => setState(() => _maxMembers--)
                         : null,
-                    icon: const Icon(Icons.remove_circle_outline),
                   ),
-                  Text(
-                    '$_maxMembers명',
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Text(
+                      '$_maxMembers명',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
                   ),
-                  IconButton(
+                  _StepperButton(
+                    icon: Icons.add_rounded,
                     onPressed: _maxMembers < 20
                         ? () => setState(() => _maxMembers++)
                         : null,
-                    icon: const Icon(Icons.add_circle_outline),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
 
+              // 모임 설명
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
@@ -245,17 +271,25 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
                 validator: (v) =>
                     v == null || v.isEmpty ? '설명을 입력해주세요' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
 
-              // Location picker
+              // 장소 선택 버튼
               OutlinedButton.icon(
                 onPressed: _pickLocation,
-                icon: const Icon(Icons.map),
+                icon: Icon(
+                  _selectedLocation != null
+                      ? Icons.check_rounded
+                      : Icons.map_rounded,
+                ),
                 label: Text(
-                  _selectedLocation != null ? '장소 선택됨' : '지도에서 장소 선택',
+                  _selectedLocation != null
+                      ? '장소 선택됨 · 변경하기'
+                      : '지도에서 장소 선택',
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
+
+              // 장소 이름
               TextFormField(
                 controller: _locationNameController,
                 decoration: const InputDecoration(
@@ -265,21 +299,106 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
                 validator: (v) =>
                     v == null || v.isEmpty ? '장소 이름을 입력해주세요' : null,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.xxxl),
 
+              // 제출 버튼
               ElevatedButton(
                 onPressed: _isLoading ? null : _submit,
                 child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const AppLoader(color: Colors.white)
                     : Text(_isEditMode ? '수정하기' : '모임 만들기'),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CategoryOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CategoryOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = categoryColor(label);
+    final icon = categoryIcon(label);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.12) : AppColors.fill,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border.all(
+            color: isSelected ? color : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? color : AppColors.textSubtle,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: isSelected ? color : AppColors.text,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  const _StepperButton({required this.icon, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = onPressed != null;
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(40, 40),
+          padding: EdgeInsets.zero,
+          side: BorderSide(
+            color: isEnabled ? AppColors.border : AppColors.borderSubtle,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          foregroundColor:
+              isEnabled ? AppColors.textStrong : AppColors.textDisabled,
+        ),
+        child: Icon(icon, size: 18),
       ),
     );
   }

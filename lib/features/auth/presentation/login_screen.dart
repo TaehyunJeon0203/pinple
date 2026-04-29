@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinple/core/constants/campus_constants.dart';
+import 'package:pinple/core/theme/app_theme.dart';
 import 'package:pinple/core/utils/validators.dart';
+import 'package:pinple/core/widgets/app_widgets.dart';
 import 'package:pinple/features/auth/providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -49,72 +51,97 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.primary,
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: AppSpacing.xxxl),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pinple',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
                         ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    CampusConstants.name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey,
+                        child: const Icon(
+                          Icons.location_on_rounded,
+                          color: Colors.white,
+                          size: 32,
                         ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      Text(
+                        'Pinple',
+                        style: Theme.of(context).textTheme.displayLarge,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        '${CampusConstants.name}\n학생들의 소모임 공간',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.text,
+                              height: 1.5,
+                            ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 48),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: '학교 이메일',
-                      hintText: '학번@smail.kongju.ac.kr',
-                      prefixIcon: Icon(Icons.email_outlined),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: validateEmail,
+                ),
+                const SizedBox(height: AppSpacing.xxxl),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: '비밀번호',
-                      prefixIcon: Icon(Icons.lock_outlined),
-                    ),
-                    obscureText: true,
-                    validator: validatePassword,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: '학교 이메일',
+                          hintText: 'name@smail.kongju.ac.kr',
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: validateEmail,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: const InputDecoration(
+                          labelText: '비밀번호',
+                        ),
+                        obscureText: true,
+                        validator: validatePassword,
+                      ),
+                      const SizedBox(height: AppSpacing.xxl),
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : _login,
+                        child: _isLoading
+                            ? const AppLoader(color: Colors.white)
+                            : const Text('로그인'),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextButton(
+                        onPressed: () => context.push('/signup'),
+                        child: const Text(
+                          '계정이 없으신가요? 회원가입',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('로그인'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () => context.push('/signup'),
-                    child: const Text('계정이 없으신가요? 회원가입'),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

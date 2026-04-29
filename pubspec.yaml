@@ -30,6 +30,9 @@ dependencies:
   geolocator: any
   permission_handler: any
 
+  # Fonts
+  google_fonts: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
