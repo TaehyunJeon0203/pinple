@@ -8,6 +8,7 @@ import 'package:pinple/core/utils/category_helpers.dart';
 import 'package:pinple/features/map/domain/group_model.dart';
 import 'package:pinple/features/map/presentation/widgets/group_bottom_sheet.dart';
 import 'package:pinple/features/map/providers/group_provider.dart';
+import 'package:pinple/features/shell/presentation/app_drawer.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -26,23 +27,47 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     });
 
     return Scaffold(
-      body: NaverMap(
-        options: const NaverMapViewOptions(
-          initialCameraPosition: NCameraPosition(
-            target: NLatLng(
-              CampusConstants.latitude,
-              CampusConstants.longitude,
+      drawer: const AppDrawer(),
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          NaverMap(
+            options: const NaverMapViewOptions(
+              initialCameraPosition: NCameraPosition(
+                target: NLatLng(
+                  CampusConstants.latitude,
+                  CampusConstants.longitude,
+                ),
+                zoom: 15.5,
+              ),
+              mapType: NMapType.basic,
+              locationButtonEnable: true,
+              logoClickEnable: false,
             ),
-            zoom: 15.5,
+            onMapReady: (controller) {
+              _mapController = controller;
+              ref.read(activeGroupsProvider).whenData(_setMarkers);
+            },
           ),
-          mapType: NMapType.basic,
-          locationButtonEnable: true,
-          logoClickEnable: false,
-        ),
-        onMapReady: (controller) {
-          _mapController = controller;
-          ref.read(activeGroupsProvider).whenData(_setMarkers);
-        },
+          Positioned(
+            top: MediaQuery.of(context).padding.top + AppSpacing.md,
+            left: AppSpacing.lg,
+            child: Builder(
+              builder: (context) => _CircleIconButton(
+                icon: Icons.menu_rounded,
+                onTap: () => Scaffold.of(context).openDrawer(),
+              ),
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + AppSpacing.md,
+            right: AppSpacing.lg,
+            child: _CircleIconButton(
+              icon: Icons.list_rounded,
+              onTap: () => context.push('/list'),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/group/create'),
@@ -92,6 +117,33 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           Navigator.pop(context);
           context.push('/group/${group.id}');
         },
+      ),
+    );
+  }
+}
+
+class _CircleIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _CircleIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.bg,
+      shape: const CircleBorder(),
+      elevation: 4,
+      shadowColor: Colors.black26,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          child: Icon(icon, size: 22, color: AppColors.textStrong),
+        ),
       ),
     );
   }

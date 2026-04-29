@@ -20,12 +20,12 @@ class ProfileScreen extends ConsumerWidget {
     final myGroupsAsync = ref.watch(myGroupsProvider(user.uid));
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const PageHeader(title: '마이'),
+      appBar: AppBar(title: const Text('내 정보')),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: AppSpacing.md),
 
               // User card
               Padding(
@@ -174,8 +174,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: AppSpacing.xxl),
-            ],
-          ),
+          ],
         ),
       ),
     );

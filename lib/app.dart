@@ -11,7 +11,7 @@ import 'package:pinple/features/map/presentation/group_detail_screen.dart';
 import 'package:pinple/features/map/presentation/group_list_screen.dart';
 import 'package:pinple/features/map/presentation/map_screen.dart';
 import 'package:pinple/features/profile/presentation/profile_screen.dart';
-import 'package:pinple/features/shell/presentation/main_shell.dart';
+import 'package:pinple/features/shell/presentation/location_gate.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -54,33 +54,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/verify-email',
         builder: (_, _) => const EmailVerifyScreen(),
       ),
-      StatefulShellRoute.indexedStack(
-        builder: (_, _, navigationShell) =>
-            MainShell(navigationShell: navigationShell),
-        branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/map',
-                builder: (_, _) => const MapScreen(),
-              ),
-            ],
+      ShellRoute(
+        builder: (_, _, child) => LocationGate(child: child),
+        routes: [
+          GoRoute(
+            path: '/map',
+            builder: (_, _) => const MapScreen(),
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/list',
-                builder: (_, _) => const GroupListScreen(),
-              ),
-            ],
+          GoRoute(
+            path: '/list',
+            builder: (_, _) => const GroupListScreen(),
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/profile',
-                builder: (_, _) => const ProfileScreen(),
-              ),
-            ],
+          GoRoute(
+            path: '/profile',
+            builder: (_, _) => const ProfileScreen(),
           ),
         ],
       ),

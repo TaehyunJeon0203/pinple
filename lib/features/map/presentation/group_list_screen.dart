@@ -18,16 +18,27 @@ class GroupListScreen extends ConsumerWidget {
     final positionAsync = ref.watch(currentPositionProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PageHeader(
-              title: '주변 모임',
-              subtitle: '가까운 순서로 보여드려요',
+      appBar: AppBar(title: const Text('주변 모임')),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.sm,
+              AppSpacing.xl,
+              AppSpacing.lg,
             ),
-            Expanded(
-              child: groupsAsync.when(
+            child: Text(
+              '가까운 순서로 보여드려요',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSubtle,
+              ),
+            ),
+          ),
+          Expanded(
+            child: groupsAsync.when(
                 loading: () => const Center(child: AppLoader()),
                 error: (e, _) => EmptyState(
                   icon: Icons.error_outline_rounded,
@@ -78,8 +89,7 @@ class GroupListScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   List<_GroupWithDistance> _sortByDistance(
