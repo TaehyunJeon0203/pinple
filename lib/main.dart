@@ -12,9 +12,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // ignore: deprecated_member_use
-  await NaverMapSdk.instance.initialize(
-    clientId: 'sf44dqi8bt',
+  await FlutterNaverMap().init(
+    clientId: 'num7515n0d',
     onAuthFailed: (ex) {
       debugPrint('===== NaverMap auth failed =====');
       debugPrint('type: ${ex.runtimeType}');
