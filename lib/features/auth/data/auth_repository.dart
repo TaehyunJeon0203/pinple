@@ -49,7 +49,10 @@ class AuthRepository {
       password: password,
     );
 
-    if (!credential.user!.emailVerified) {
+    await credential.user!.reload();
+    await credential.user!.getIdToken(true);
+
+    if (!_auth.currentUser!.emailVerified) {
       await _auth.signOut();
       throw Exception('이메일 인증을 완료해주세요');
     }
@@ -61,6 +64,7 @@ class AuthRepository {
 
   Future<bool> checkEmailVerified() async {
     await _auth.currentUser?.reload();
+    await _auth.currentUser?.getIdToken(true);
     return _auth.currentUser?.emailVerified ?? false;
   }
 

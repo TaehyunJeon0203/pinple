@@ -121,57 +121,17 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
     }
   }
 
-  void _pickLocation() {
-    showModalBottomSheet(
+  Future<void> _pickLocation() async {
+    final picked = await showModalBottomSheet<NLatLng>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl,
-                vertical: AppSpacing.lg,
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    '장소 선택',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('완료'),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: NaverMap(
-                options: NaverMapViewOptions(
-                  initialCameraPosition: NCameraPosition(
-                    target: _selectedLocation ??
-                        const NLatLng(
-                          CampusConstants.latitude,
-                          CampusConstants.longitude,
-                        ),
-                    zoom: 16,
-                  ),
-                  mapType: NMapType.basic,
-                ),
-                onMapTapped: (point, latLng) {
-                  setState(() {
-                    _selectedLocation = latLng;
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
+      builder: (_) => _LocationPickerSheet(
+        initialLocation: _selectedLocation,
       ),
     );
+    if (picked != null && mounted) {
+      setState(() => _selectedLocation = picked);
+    }
   }
 
   @override
@@ -399,6 +359,103 @@ class _StepperButton extends StatelessWidget {
               isEnabled ? AppColors.textStrong : AppColors.textDisabled,
         ),
         child: Icon(icon, size: 18),
+      ),
+    );
+  }
+}
+
+class _LocationPickerSheet extends StatefulWidget {
+  final NLatLng? initialLocation;
+
+  const _LocationPickerSheet({this.initialLocation});
+
+  @override
+  State<_LocationPickerSheet> createState() => _LocationPickerSheetState();
+}
+
+class _LocationPickerSheetState extends State<_LocationPickerSheet> {
+  NaverMapController? _mapController;
+  NLatLng? _selected;
+  static const _markerId = 'selected-location';
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.initialLocation;
+  }
+
+  Future<void> _updateMarker(NLatLng latLng) async {
+    final controller = _mapController;
+    if (controller == null) return;
+    await controller.clearOverlays();
+    await controller.addOverlay(
+      NMarker(
+        id: _markerId,
+        position: latLng,
+        iconTintColor: AppColors.primary,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasSelection = _selected != null;
+
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.7,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xl,
+              vertical: AppSpacing.lg,
+            ),
+            child: Row(
+              children: [
+                Text('장소 선택', style: theme.textTheme.titleMedium),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  hasSelection ? '· 선택됨' : '· 지도를 탭하세요',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: hasSelection
+                      ? () => Navigator.pop(context, _selected)
+                      : null,
+                  child: const Text('완료'),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: NaverMap(
+              options: NaverMapViewOptions(
+                initialCameraPosition: NCameraPosition(
+                  target: _selected ??
+                      const NLatLng(
+                        CampusConstants.latitude,
+                        CampusConstants.longitude,
+                      ),
+                  zoom: 16,
+                ),
+                mapType: NMapType.basic,
+              ),
+              onMapReady: (controller) {
+                _mapController = controller;
+                final initial = _selected;
+                if (initial != null) {
+                  _updateMarker(initial);
+                }
+              },
+              onMapTapped: (point, latLng) {
+                setState(() => _selected = latLng);
+                _updateMarker(latLng);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
